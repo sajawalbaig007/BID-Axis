@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BEM CRM — Project Documentation</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0f172a; color: #e2e8f0; line-height: 1.6; }
+    .layout { display: flex; min-height: 100vh; }
+    nav { width: 250px; background: #1e293b; border-right: 1px solid #334155; padding: 28px 0; position: fixed; top: 0; left: 0; bottom: 0; overflow-y: auto; z-index: 100; }
+    nav .logo { font-size: 15px; font-weight: 700; color: #f8fafc; padding: 0 20px 24px; border-bottom: 1px solid #334155; display: flex; align-items: center; gap: 10px; }
+    nav .logo span { background: #B8112D; color: #fff; width: 30px; height: 30px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; flex-shrink: 0; }
+    nav ul { list-style: none; padding: 16px 0; }
+    nav ul li a { display: flex; align-items: center; gap: 10px; padding: 9px 20px; color: #94a3b8; text-decoration: none; font-size: 13px; font-weight: 500; border-left: 3px solid transparent; transition: all 0.15s; }
+    nav ul li a:hover, nav ul li a.active { color: #f8fafc; background: #0f172a; border-left-color: #B8112D; }
+    main { margin-left: 250px; flex: 1; padding: 40px; max-width: calc(100vw - 250px); }
+    .page-header { margin-bottom: 40px; padding-bottom: 24px; border-bottom: 1px solid #1e293b; }
+    .page-header h1 { font-size: 28px; font-weight: 700; color: #f8fafc; }
+    .page-header p { color: #64748b; font-size: 14px; margin-top: 6px; max-width: 720px; }
+    .badge-generated { display: inline-flex; align-items: center; gap: 6px; background: #1e293b; border: 1px solid #334155; color: #94a3b8; font-size: 12px; padding: 4px 12px; border-radius: 999px; margin-top: 12px; }
+    .badge-generated::before { content: ""; width: 6px; height: 6px; background: #22c55e; border-radius: 50%; display: inline-block; }
+    section { margin-bottom: 48px; scroll-margin-top: 24px; }
+    section h2 { font-size: 18px; font-weight: 600; color: #f1f5f9; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+    section h2::after { content: ""; flex: 1; height: 1px; background: #1e293b; }
+    section h3 { font-size: 14px; font-weight: 600; color: #cbd5e1; margin: 20px 0 10px; }
+    .card { background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 24px; overflow: auto; }
+    .card.flush { padding: 0; }
+    .tree { font-family: "Courier New", monospace; font-size: 12.5px; color: #94a3b8; white-space: pre; line-height: 1.65; }
+    .diagram-wrap { background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 32px 24px; overflow: auto; display: flex; align-items: center; justify-content: center; min-height: 200px; margin-bottom: 16px; }
+    .mermaid { width: 100%; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead tr { background: #0f172a; border-bottom: 1px solid #334155; }
+    th { text-align: left; padding: 11px 14px; color: #64748b; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+    td { padding: 10px 14px; border-bottom: 1px solid #1e293b; color: #cbd5e1; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #0f172a; }
+    .badge { display: inline-flex; align-items: center; justify-content: center; padding: 3px 9px; border-radius: 6px; font-size: 10.5px; font-weight: 700; color: #fff; letter-spacing: 0.04em; min-width: 52px; }
+    .b-get { background: #22c55e; } .b-post { background: #3b82f6; } .b-put { background: #f59e0b; }
+    .b-patch { background: #a855f7; } .b-delete { background: #ef4444; }
+    code { background: #0f172a; color: #7dd3fc; padding: 2px 7px; border-radius: 6px; font-size: 12px; font-family: "Courier New", monospace; }
+    code.file { color: #a5b4fc; }
+    .pages-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+    .pages-list li { background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 10px 14px; font-size: 13px; color: #94a3b8; }
+    .pages-list li strong { display: block; color: #e2e8f0; font-size: 11px; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .pages-list li code { background: transparent; color: #7dd3fc; padding: 0; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; margin-bottom: 40px; }
+    .stat-card { background: #1e293b; border: 1px solid #334155; border-radius: 14px; padding: 16px; }
+    .stat-card .num { font-size: 26px; font-weight: 700; color: #f8fafc; }
+    .stat-card .lbl { font-size: 11.5px; color: #64748b; margin-top: 4px; }
+    .accent { color: #bd0f2c; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+    .info-card { background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 16px; }
+    .info-card h4 { font-size: 13px; color: #f1f5f9; margin-bottom: 8px; }
+    .info-card ul { list-style: none; font-size: 12.5px; color: #94a3b8; }
+    .info-card ul li { padding: 3px 0; }
+    .info-card ul li::before { content: "→ "; color: #B8112D; }
+    .tag { display: inline-block; background: #0f172a; border: 1px solid #334155; color: #94a3b8; font-size: 11px; padding: 2px 8px; border-radius: 6px; margin: 2px 3px 2px 0; }
+    .route-group { margin-bottom: 24px; }
+    .route-group-title { font-size: 13px; font-weight: 600; color: #94a3b8; margin-bottom: 8px; padding-left: 4px; }
+    .route-group-title code { color: #fbbf24; }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <nav>
+    <div class="logo"><span>B</span> BEM CRM Docs</div>
+    <ul>
+      <li><a href="#overview" class="active">📊 Overview</a></li>
+      <li><a href="#architecture">🏗️ Architecture</a></li>
+      <li><a href="#stack">⚙️ Tech Stack</a></li>
+      <li><a href="#structure">📁 Project Structure</a></li>
+      <li><a href="#erd">🗄️ Database ERD</a></li>
+      <li><a href="#pages">🖥️ Frontend Pages</a></li>
+      <li><a href="#routes">🔗 API Routes</a></li>
+      <li><a href="#security">🔒 Security</a></li>
+      <li><a href="#workflow">📋 Lead Workflow</a></li>
+    </ul>
+  </nav>
+  <main>
+    <div class="page-header" id="overview">
+      <h1>BEM CRM Dashboard — Documentation</h1>
+      <p>Full-stack CRM for BEM Solutions: lead assignment, CSR call workflows, Excel uploads, active projects, internal chat, reports &amp; audit logs. Monorepo with Express API + Next.js frontend.</p>
+      <div class="badge-generated">Updated · June 25, 2026 · See also <code>CODEBASE.md</code></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card"><div class="num accent">8</div><div class="lbl">API Modules</div></div>
+      <div class="stat-card"><div class="num accent">~100</div><div class="lbl">API Endpoints</div></div>
+      <div class="stat-card"><div class="num accent">20</div><div class="lbl">Frontend Pages</div></div>
+      <div class="stat-card"><div class="num accent">15</div><div class="lbl">DB Models</div></div>
+      <div class="stat-card"><div class="num accent">2</div><div class="lbl">User Roles</div></div>
+      <div class="stat-card"><div class="num accent">24</div><div class="lbl">Backend Utils</div></div>
+    </div>
+
+    <section id="architecture">
+      <h2>🏗️ Architecture</h2>
+      <div class="diagram-wrap"><div class="mermaid">flowchart TD
+  Browser["Browser — Next.js 16"]
+  Proxy["proxy.ts — route guard"]
+  NextAPI["Next.js API routes"]
+  Express["Express 5 — port 5000"]
+  MongoDB[("MongoDB — Prisma")]
+  Cloudinary["Cloudinary"]
+  SMTP["Gmail SMTP"]
+  Turnstile["Cloudflare Turnstile"]
+
+  Browser --> Proxy
+  Browser --> NextAPI
+  NextAPI -->|"set-session cookie"| Browser
+  NextAPI -->|"/api/backend/*"| Express
+  Express --> MongoDB
+  Express --> Cloudinary
+  Express --> SMTP
+  Express --> Turnstile</div></div>
+      <div class="grid-2">
+        <div class="info-card">
+          <h4>Request flow (dev)</h4>
+          <ul>
+            <li>Browser → <code>/api/backend/csr/dashboard</code></li>
+            <li>Next proxy → <code>127.0.0.1:5000/api/csr/dashboard</code></li>
+            <li>JWT cookie + Bearer header sent</li>
+            <li><code>verifyToken</code> + <code>allowRoles</code></li>
+            <li>JSON response + frontend caches</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h4>Seed accounts</h4>
+          <ul>
+            <li><code>admin@gmail.com</code> / <code>123456</code> — admin</li>
+            <li><code>csr@gmail.com</code> / <code>123456</code> — csr (CSR001)</li>
+            <li>Backend: <code>localhost:5000</code></li>
+            <li>Frontend: <code>localhost:3000</code></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="stack">
+      <h2>⚙️ Tech Stack</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Backend</h3>
+          <p style="font-size:13px;color:#94a3b8;margin-top:8px">
+            <span class="tag">Express 5</span><span class="tag">TypeScript</span><span class="tag">Prisma 6</span>
+            <span class="tag">MongoDB</span><span class="tag">JWT</span><span class="tag">bcryptjs</span>
+            <span class="tag">helmet</span><span class="tag">multer</span><span class="tag">xlsx</span>
+            <span class="tag">Cloudinary</span><span class="tag">Nodemailer</span>
+          </p>
+        </div>
+        <div class="card">
+          <h3>Frontend</h3>
+          <p style="font-size:13px;color:#94a3b8;margin-top:8px">
+            <span class="tag">Next.js 16</span><span class="tag">React 19</span><span class="tag">Tailwind v4</span>
+            <span class="tag">Axios</span><span class="tag">Recharts</span><span class="tag">next-themes</span>
+            <span class="tag">lucide-react</span><span class="tag">jspdf</span><span class="tag">react-hot-toast</span>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="structure">
+      <h2>📁 Project Structure</h2>
+      <div class="card"><pre class="tree">CRM/
+├── CODEBASE.md                 # Full markdown documentation
+├── PROJECT.html                # This interactive doc
+├── backend/
+│   ├── prisma/
+│   │   ├── schema.prisma       # MongoDB models (15)
+│   │   └── seed.ts
+│   └── src/
+│       ├── server.ts           # Entry + cron jobs
+│       ├── app.ts              # Express setup, route mounting
+│       ├── config/             # db, env, cloudinary, security
+│       ├── controllers/        # auth, user, upload, report (5)
+│       ├── middleware/         # auth, role, rateLimit, upload, adminIp
+│       ├── routes/             # admin, auth, csr, chat, upload, user, report (8)
+│       └── utils/              # binLeads, cache, sessions, auditLog… (24)
+└── frontend/
+    ├── proxy.ts                # Route guard (replaces middleware.ts)
+    ├── app/
+    │   ├── page.tsx            # Login
+    │   ├── layout.tsx          # ThemeProvider, global layout
+    │   ├── globals.css         # Design tokens + dark mode
+    │   ├── api/
+    │   │   ├── auth/           # set-session, clear-session
+    │   │   └── backend/        # Reverse proxy → Express
+    │   ├── admin/              # Dashboard, users, leads, uploads, bin…
+    │   ├── csr/                # Call data, clients, projects, chat…
+    │   └── components/         # Chat, projects, theme, table filters
+    └── lib/                    # api, session, caches, chat utilities</pre></div>
+    </section>
+
+    <section id="erd">
+      <h2>🗄️ Database ERD</h2>
+      <p style="font-size:13px;color:#64748b;margin-bottom:16px">MongoDB via Prisma · IDs are <code>cuid()</code> mapped to <code>_id</code></p>
+      <div class="diagram-wrap"><div class="mermaid">erDiagram
+  User ||--o{ Lead : assigns
+  User ||--o{ CallLog : logs
+  User ||--o{ Report : generates
+  User ||--o{ ConversationMember : joins
+  User ||--o{ Message : sends
+  User ||--o{ SecurityAuditLog : audits
+  User ||--o{ AccessHistory : accesses
+  Lead ||--o{ LeadNote : has
+  Lead ||--o{ SubContact : has
+  Lead ||--o{ CallLog : tracks
+  UploadSource ||--o{ UploadFile : sources
+  UploadFile ||--o{ Lead : contains
+  Conversation ||--o{ ConversationMember : members
+  Conversation ||--o{ Message : messages
+  Message ||--o{ Message : replies
+
+  User {
+    string id
+    string role
+    string csrCode
+    boolean isActive
+    boolean isOnline
+    boolean twoFAEnabled
+    int tokenVersion
+    string activeSessionId
+  }
+  Lead {
+    string status
+    string assignedTo
+    boolean inBin
+    int notInterestedCount
+    int notPickedCount
+    string clientCode
+    string projectPhase
+    boolean hiddenOnMain
+  }
+  UploadSource {
+    string name
+    string sudoName
+  }
+  UploadFile {
+    string uploadCategory
+    int totalLeads
+  }
+  Conversation {
+    string type
+    string pinnedMessageId
+  }
+  Message {
+    string type
+    string fileUrl
+    json reactions
+  }</div></div>
+      <div class="grid-2">
+        <div class="info-card">
+          <h4>Core models</h4>
+          <ul>
+            <li>User, Lead, LeadNote, SubContact, CallLog</li>
+            <li>UploadSource, UploadFile, Report</li>
+            <li>Conversation, ConversationMember, Message</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h4>Security / infra models</h4>
+          <ul>
+            <li>SecurityAuditLog, AccessHistory</li>
+            <li>LoginLockout, LoginAttemptAlert</li>
+            <li>RateLimitEntry (prod rate limiting)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="pages">
+      <h2>🖥️ Frontend Pages</h2>
+      <div class="diagram-wrap"><div class="mermaid">flowchart LR
+  App["Next.js App"]
+  subgraph Admin
+    A0["/admin"]
+    A1["/admin/users"]
+    A2["/admin/leads"]
+    A3["/admin/uploads"]
+    A4["/admin/bin"]
+    A5["/admin/active-projects"]
+    A6["/admin/reports"]
+    A7["/admin/settings"]
+  end
+  subgraph CSR
+    C0["/csr"]
+    C1["/csr/potential-clients"]
+    C2["/csr/not-interested"]
+    C3["/csr/clients"]
+    C4["/csr/active-projects"]
+    C5["/csr/bin"]
+    C6["/csr/chat"]
+    C7["/csr/settings"]
+  end
+  App --> A0 & A1 & A2 & A3 & A4 & A5 & A6 & A7
+  App --> C0 & C1 & C2 & C3 & C4 & C5 & C6 & C7
+  App --> Login["/"]</div></div>
+      <div class="card"><ul class="pages-list">
+        <li><strong>Public</strong><code>/</code> Login + 2FA</li>
+        <li><strong>Admin</strong><code>/admin</code> Dashboard &amp; stats</li>
+        <li><strong>Admin</strong><code>/admin/users</code> User management</li>
+        <li><strong>Admin</strong><code>/admin/leads</code> All leads</li>
+        <li><strong>Admin</strong><code>/admin/uploads</code> Excel import wizard</li>
+        <li><strong>Admin</strong><code>/admin/bin</code> Bin leads (all CSRs)</li>
+        <li><strong>Admin</strong><code>/admin/active-projects</code> Project DB</li>
+        <li><strong>Admin</strong><code>/admin/reports</code> CSR performance</li>
+        <li><strong>Admin</strong><code>/admin/settings</code> Profile &amp; 2FA</li>
+        <li><strong>CSR</strong><code>/csr</code> Call Data (main)</li>
+        <li><strong>CSR</strong><code>/csr/potential-clients</code> Important / schedule / interested</li>
+        <li><strong>CSR</strong><code>/csr/not-interested</code> NI, NP, No Owner, Not In Svc, In House</li>
+        <li><strong>CSR</strong><code>/csr/clients</code> Client directory</li>
+        <li><strong>CSR</strong><code>/csr/active-projects</code> Won projects</li>
+        <li><strong>CSR</strong><code>/csr/bin</code> CSR bin</li>
+        <li><strong>CSR</strong><code>/csr/chat</code> Full-page chat</li>
+        <li><strong>CSR</strong><code>/csr/settings</code> Profile settings</li>
+      </ul></div>
+    </section>
+
+    <section id="routes">
+      <h2>🔗 API Routes</h2>
+      <p style="font-size:13px;color:#64748b;margin-bottom:20px">All paths prefixed with <code>/api</code>. Auth via JWT httpOnly cookie + optional Bearer header.</p>
+
+      <div class="route-group">
+        <div class="route-group-title"><code>/api/auth</code> — auth.routes.ts</div>
+        <div class="card flush"><table><thead><tr><th>Method</th><th>Path</th><th>Auth</th></tr></thead><tbody>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/captcha-config</code></td><td>Public</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/login</code></td><td>Public (rate limited)</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/verify-otp</code></td><td>Public</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/resend-otp</code></td><td>Public</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/register</code></td><td>Admin</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/logout</code></td><td>Auth</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/logout-all</code></td><td>Auth</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/session-alert/ack</code></td><td>Auth</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/me</code></td><td>Auth</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/session-status</code></td><td>Auth</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/audit-logs</code></td><td>Admin</td></tr>
+          <tr><td><span class="badge b-put">PUT</span></td><td><code>/profile</code></td><td>Auth</td></tr>
+          <tr><td><span class="badge b-put">PUT</span></td><td><code>/change-password</code></td><td>Auth</td></tr>
+          <tr><td><span class="badge b-put">PUT</span></td><td><code>/toggle-2fa</code></td><td>Auth</td></tr>
+        </tbody></table></div>
+      </div>
+
+      <div class="route-group">
+        <div class="route-group-title"><code>/api/admin</code> — admin.routes.ts (+ IP allowlist)</div>
+        <div class="card flush"><table><thead><tr><th>Method</th><th>Path</th><th>Description</th></tr></thead><tbody>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/dashboard</code></td><td>Dashboard stub</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/notifications</code></td><td>Scheduled important calls</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/csrs</code></td><td>Active CSR list</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/clients/summary</code></td><td>Dashboard stats + charts</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/clients</code></td><td>Paginated leads (tabs/filters)</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/lead/:id</code></td><td>Lead detail</td></tr>
+          <tr><td><span class="badge b-put">PUT</span></td><td><code>/lead/:id</code></td><td>Update lead</td></tr>
+          <tr><td><span class="badge b-delete">DELETE</span></td><td><code>/lead/:id</code></td><td>Delete lead (cascade)</td></tr>
+          <tr><td><span class="badge b-put">PUT</span></td><td><code>/lead/:id/reassign</code></td><td>Reassign to CSR</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/lead/:id/notes</code></td><td>Add note</td></tr>
+          <tr><td><span class="badge b-put">PUT</span></td><td><code>/lead/:id/notes/:noteId</code></td><td>Edit note</td></tr>
+          <tr><td><span class="badge b-delete">DELETE</span></td><td><code>/lead/:id/notes/:noteId</code></td><td>Delete note</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/lead/:id/subcontacts</code></td><td>Add sub-contact</td></tr>
+          <tr><td><span class="badge b-delete">DELETE</span></td><td><code>/lead/:id/subcontacts/:subId</code></td><td>Remove sub-contact</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/projects</code></td><td>Active projects</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/project</code></td><td>Create project</td></tr>
+          <tr><td><span class="badge b-put">PUT</span></td><td><code>/project/:id</code></td><td>Update project</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/lookup-by-phone</code></td><td>Client lookup</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/bin</code></td><td>Bin leads (cached)</td></tr>
+          <tr><td><span class="badge b-put">PUT</span></td><td><code>/csr-status/:id</code></td><td>Activate/deactivate CSR</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/csr-history/:csrId</code></td><td>CSR call history</td></tr>
+          <tr><td><span class="badge b-delete">DELETE</span></td><td><code>/csr-leads/:csrId</code></td><td>Purge all CSR leads</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/shuffle-status</code></td><td>Shuffle preview</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/run-shuffle</code></td><td>Manual shuffle trigger</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/upload-sources</code></td><td>List upload sources</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/upload-sources</code></td><td>Create source</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/upload-sources/:sourceId</code></td><td>Source detail + stats</td></tr>
+          <tr><td><span class="badge b-patch">PATCH</span></td><td><code>/upload-sources/:sourceId</code></td><td>Update source</td></tr>
+          <tr><td><span class="badge b-delete">DELETE</span></td><td><code>/upload-sources/:sourceId</code></td><td>Delete source</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/access-history/:userId</code></td><td>Login history</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/migrate-legacy-notes</code></td><td>One-time migration</td></tr>
+        </tbody></table></div>
+      </div>
+
+      <div class="route-group">
+        <div class="route-group-title"><code>/api/csr</code> — csr.routes.ts</div>
+        <div class="card flush"><table><thead><tr><th>Method</th><th>Path</th><th>Description</th></tr></thead><tbody>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/dashboard</code></td><td>Main call data (cached)</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/leads</code></td><td>Client directory</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/not-interested</code></td><td>NI + NP retry leads</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/bin</code></td><td>CSR bin</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/projects</code></td><td>Active projects</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/notifications</code></td><td>Scheduled calls + activity</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/activity-report</code></td><td>Activity by date range</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/lead/:id</code></td><td>Lead detail</td></tr>
+          <tr><td><span class="badge b-put">PUT</span></td><td><code>/lead/:id</code></td><td>Update lead + status logic</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/lead</code></td><td>Manual lead create</td></tr>
+          <tr><td><span class="badge b-put">PUT</span></td><td><code>/lead/:id/assign</code></td><td>Manual assign after limit</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/project</code></td><td>Create project</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/lookup-by-phone</code></td><td>Returning client lookup</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/csrs</code></td><td>Other CSRs (reassign)</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/heartbeat</code></td><td>Presence ping</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/offline</code></td><td>Mark offline (beacon)</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/lead/:id/notes</code></td><td>Notes CRUD (also PUT/DELETE)</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/lead/:id/subcontacts</code></td><td>Sub-contacts (also DELETE)</td></tr>
+        </tbody></table></div>
+      </div>
+
+      <div class="route-group">
+        <div class="route-group-title"><code>/api/uploads</code> · <code>/api/reports</code> · <code>/api/report-uploads</code> · <code>/api/users</code></div>
+        <div class="card flush"><table><thead><tr><th>Method</th><th>Path</th><th>Description</th></tr></thead><tbody>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/uploads/</code></td><td>Upload Excel → distribute leads</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/uploads/preview</code></td><td>Dry-run preview</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/uploads/latest</code></td><td>Latest upload</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/uploads/history</code></td><td>Upload history</td></tr>
+          <tr><td><span class="badge b-patch">PATCH</span></td><td><code>/uploads/:id/source</code></td><td>Assign source</td></tr>
+          <tr><td><span class="badge b-delete">DELETE</span></td><td><code>/uploads/:id</code></td><td>Delete upload + leads</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/reports/</code></td><td>List reports</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/report-uploads/</code></td><td>Upload report file</td></tr>
+          <tr><td><span class="badge b-delete">DELETE</span></td><td><code>/report-uploads/:id</code></td><td>Delete report</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/users/</code></td><td>User list</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/users/upload-pic</code></td><td>Profile picture</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/users/upload-cnic</code></td><td>CNIC PDF (admin)</td></tr>
+          <tr><td><span class="badge b-put">PUT</span></td><td><code>/users/:id</code></td><td>Update user</td></tr>
+          <tr><td><span class="badge b-put">PUT</span></td><td><code>/users/:id/password</code></td><td>Set password</td></tr>
+          <tr><td><span class="badge b-delete">DELETE</span></td><td><code>/users/:id</code></td><td>Delete user</td></tr>
+        </tbody></table></div>
+      </div>
+
+      <div class="route-group">
+        <div class="route-group-title"><code>/api/chat</code> — chat.routes.ts (polling, no WebSockets)</div>
+        <div class="card flush"><table><thead><tr><th>Method</th><th>Path</th><th>Description</th></tr></thead><tbody>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/conversations</code></td><td>List (optional archived)</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/conversations</code></td><td>Create direct/group</td></tr>
+          <tr><td><span class="badge b-delete">DELETE</span></td><td><code>/conversations/:id</code></td><td>Delete conversation</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/conversations/:id/messages</code></td><td>Messages + pinned</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/conversations/:id/messages</code></td><td>Send text/file</td></tr>
+          <tr><td><span class="badge b-patch">PATCH</span></td><td><code>/messages/:id</code></td><td>Edit message</td></tr>
+          <tr><td><span class="badge b-delete">DELETE</span></td><td><code>/messages/:id</code></td><td>Delete message</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/messages/:id/reactions</code></td><td>Add/remove reaction</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/conversations/:id/read</code></td><td>Mark read</td></tr>
+          <tr><td><span class="badge b-post">GET</span></td><td><code>/conversations/:id/typing</code></td><td>Typing indicators</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/conversations/:id/pin</code></td><td>Pin message</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/conversations/:id/archive</code></td><td>Archive / unarchive</td></tr>
+          <tr><td><span class="badge b-post">POST</span></td><td><code>/status</code></td><td>Online/offline</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/users</code></td><td>Chat user directory</td></tr>
+          <tr><td><span class="badge b-get">GET</span></td><td><code>/conversations/:id/members</code></td><td>Group members</td></tr>
+        </tbody></table></div>
+      </div>
+    </section>
+
+    <section id="security">
+      <h2>🔒 Security</h2>
+      <div class="grid-2">
+        <div class="info-card">
+          <h4>Authentication</h4>
+          <ul>
+            <li>JWT in httpOnly cookie (7 days) + Bearer mirror</li>
+            <li>Single active session (<code>activeSessionId</code>)</li>
+            <li><code>tokenVersion</code> invalidates old tokens</li>
+            <li>Email 2FA OTP via Gmail SMTP</li>
+            <li>Remember-me session duration config</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h4>Protection layers</h4>
+          <ul>
+            <li>bcrypt password hashing (10 rounds)</li>
+            <li>Login rate limit + Prisma lockout</li>
+            <li>Cloudflare Turnstile CAPTCHA</li>
+            <li>Have I Been Pwned breach check</li>
+            <li>Admin IP allowlist (<code>ADMIN_ALLOWED_IPS</code>)</li>
+            <li>Helmet CSP + HSTS (production)</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h4>Audit &amp; monitoring</h4>
+          <ul>
+            <li><code>SecurityAuditLog</code> — login, 2FA, logout</li>
+            <li><code>AccessHistory</code> — IP, device, browser</li>
+            <li>CSR auto-deactivate after 90d inactivity</li>
+            <li>CNIC masked in API responses</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h4>Frontend guards</h4>
+          <ul>
+            <li><code>proxy.ts</code> — JWT exp + sid validation</li>
+            <li>Axios 401 → clear session → login redirect</li>
+            <li>Role-based route separation</li>
+            <li>DevTools guard on login page</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="workflow">
+      <h2>📋 Lead Workflow &amp; Cron Jobs</h2>
+      <div class="diagram-wrap"><div class="mermaid">flowchart LR
+  Upload["Excel Upload"] --> Pending["pending"]
+  Pending --> NP["not picked — max 7"]
+  Pending --> NI["Not Interested — max 3"]
+  Pending --> Important["important + schedule"]
+  Pending --> Interested["interested"]
+  Interested --> Close["Close Client"]
+  Close --> Project["Active Project"]
+  NP --> Bin["Bin — manual reassign"]
+  NI --> Bin
+  NP --> Shuffle["Shuffle every 2 days"]
+  Shuffle --> Bin</div></div>
+      <div class="grid-2" style="margin-top:16px">
+        <div class="info-card">
+          <h4>Lead statuses (CSR)</h4>
+          <ul>
+            <li>pending, not picked, Not Interested</li>
+            <li>no owner available, not in service, in house</li>
+            <li>important, interested, Close Client</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h4>Background jobs (server.ts)</h4>
+          <ul>
+            <li>Auto-offline — every 5s (15s timeout)</li>
+            <li>Daily report — 3:30 AM → Cloudinary</li>
+            <li>Lead shuffle — midnight, every 2 days</li>
+            <li>CSR deactivation — 90d inactivity</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h4>Upload categories</h4>
+          <ul>
+            <li>call-data, new-client, old-client</li>
+            <li>interested, important, active-projects</li>
+            <li>Source optional (sudo name for CSR)</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h4>Chat behavior</h4>
+          <ul>
+            <li>Polling only when chat panel open</li>
+            <li>Shared <code>chatUnreadStore</code> dedupe</li>
+            <li>4s visible / 15s hidden poll interval</li>
+            <li>Sound + browser notifications</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      primaryColor: "#1e293b",
+      primaryTextColor: "#e2e8f0",
+      primaryBorderColor: "#334155",
+      lineColor: "#B8112D",
+      secondaryColor: "#0f172a",
+      tertiaryColor: "#0f172a",
+      fontFamily: "ui-sans-serif, system-ui, sans-serif",
+    },
+    er: { diagramPadding: 30 },
+    flowchart: { curve: "basis", padding: 20 },
+  });
+  const sections = document.querySelectorAll("section, .page-header");
+  const links = document.querySelectorAll("nav a");
+  window.addEventListener("scroll", () => {
+    let current = "";
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 80) current = s.id; });
+    links.forEach(a => { a.classList.toggle("active", a.getAttribute("href") === "#" + current); });
+  });
+</script>
+</body>
+</html>

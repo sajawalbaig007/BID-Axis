@@ -1,0 +1,13 @@
+---
+description: In-app CRM AI is named Nexa — keep this name in UI, copy, and replies
+alwaysApply: true
+---
+
+# Nexa
+
+From 15 Sep 2026 the CRM assistant AI is named **Nexa**.
+
+- Product name: Nexa (not "CEO assistant" as the brand)
+- Access stays CEO-only; Nexa is the name, not a role change
+- UI, welcome text, aria labels, and chat copy should say Nexa
+- When talking about this CRM AI in this project, call it Nexa

@@ -1,0 +1,29 @@
+flowchart LR
+    subgraph Header["Top Header"]
+        LOGO["Logo → /csr"]
+        THEME["Theme Toggle"]
+        MSG["Messages"]
+        BELL["Notifications"]
+        PROFILE["Profile Menu"]
+    end
+
+    subgraph Nav["Main Navigation"]
+        CD["Call Data<br/>/csr"]
+        PC["Potential Clients<br/>/csr/potential-clients"]
+        NI["Not Interested<br/>/csr/not-interested"]
+        CL["Clients<br/>/csr/clients"]
+        AP["Active Projects<br/>/csr/active-projects"]
+        BIN["Bin<br/>/csr/bin"]
+    end
+
+    subgraph ProfileMenu["Profile Menu"]
+        SEC["Security Settings<br/>/csr/settings"]
+        OUT["Logout"]
+    end
+
+    LOGO --> CD
+    PROFILE --> SEC
+    PROFILE --> OUT
+    MSG --> CHAT["Chat Panel<br/>/csr/chat"]
+
+    CD --- PC --- NI --- CL --- AP --- BIN

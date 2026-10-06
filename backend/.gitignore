@@ -1,0 +1,9 @@
+node_modules
+# Keep environment variables out of version control
+.env
+
+/generated/prisma
+
+# Nexa feedback dataset (offline eval / future DPO — not live RL)
+/data
+

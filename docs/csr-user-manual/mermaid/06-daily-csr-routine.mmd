@@ -1,0 +1,12 @@
+flowchart TD
+    D1["Login → Call Data"] --> D2["Check Today Leads / Pending"]
+    D2 --> D3["Review Scheduled Calls"]
+    D3 --> D4["Make Calls + Update Status"]
+    D4 --> D5["Add Notes after each call"]
+    D5 --> D6["Follow-up: Important / Interested"]
+    D6 --> D7["Close won deals → Active Projects"]
+    D7 --> D8["Check Notifications / Activity Report"]
+    D8 --> D9["Logout"]
+
+    style D1 fill:#EAF5FF,stroke:#0B84F3
+    style D9 fill:#FFF1F3,stroke:#B42318

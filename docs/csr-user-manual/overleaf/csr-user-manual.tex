@@ -1,0 +1,594 @@
+\documentclass[11pt,a4paper]{article}
+
+% ── Packages ──
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{listings}
+
+% ── Colors (BEM brand) ──
+\definecolor{bemred}{HTML}{B8112D}
+\definecolor{bemdark}{HTML}{0F172A}
+\definecolor{bemgreen}{HTML}{065F46}
+\definecolor{bemblue}{HTML}{0B84F3}
+\definecolor{lightgray}{HTML}{F8FAFC}
+
+% ── Hyperlinks ──
+\hypersetup{
+    colorlinks=true,
+    linkcolor=bemred,
+    urlcolor=bemblue,
+    citecolor=bemdark
+}
+
+% ── Header / Footer ──
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{bemred}{\textbf{BEM CRM --- CSR Panel User Manual}}}
+\fancyhead[R]{\textcolor{gray}{\thepage}}
+\fancyfoot[C]{\small BEM Solutions --- Confidential}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ── Section styling ──
+\titleformat{\section}{\Large\bfseries\color{bemred}}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\large\bfseries\color{bemdark}}{}{0em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{bemdark}}{}{0em}{}
+
+% ── Custom boxes ──
+\newtcolorbox{tipbox}{
+    colback=lightgray,
+    colframe=bemblue,
+    title=\textbf{Tip},
+    fonttitle=\bfseries\color{white},
+    colbacktitle=bemblue,
+    boxrule=0.5pt,
+    arc=3pt
+}
+
+\newtcolorbox{warningbox}{
+    colback=lightgray,
+    colframe=bemred,
+    title=\textbf{Important},
+    fonttitle=\bfseries\color{white},
+    colbacktitle=bemred,
+    boxrule=0.5pt,
+    arc=3pt
+}
+
+\newtcolorbox{workflowbox}{
+    colback=white,
+    colframe=bemgreen,
+    title=\textbf{Workflow},
+    fonttitle=\bfseries\color{white},
+    colbacktitle=bemgreen,
+    boxrule=0.5pt,
+    arc=3pt
+}
+
+% ── Code listing for URLs ──
+\lstset{
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{lightgray},
+    frame=single,
+    rulecolor=\color{gray},
+    breaklines=true
+}
+
+% ══════════════════════════════════════════════
+\begin{document}
+
+% ── Title Page ──
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    {\Huge\bfseries\color{bemred} BEM CRM}\\[0.4cm]
+    {\LARGE\bfseries CSR Panel}\\[0.2cm]
+    {\Large User Manual}\\[1.5cm]
+
+    \begin{tcolorbox}[colback=lightgray,colframe=bemred,width=12cm,arc=5pt]
+        \centering
+        \large
+        \textbf{Role:} Customer Support Representative (CSR)\\[0.3cm]
+        \textbf{Portal:} \texttt{/login/csr}\\[0.3cm]
+        \textbf{Version:} July 2026
+    \end{tcolorbox}
+
+    \vfill
+    {\large BEM Solutions}\\[0.2cm]
+    {\small \today}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ══════════════════════════════════════════════
+\section{Introduction}
+
+\textbf{CSR} stands for \textbf{Customer Support Representative}. In the BEM CRM system, the CSR panel is the daily workspace for handling assigned client calls, managing the sales pipeline, closing deals, and tracking active projects.
+
+\subsection{What You Can Do}
+\begin{itemize}[noitemsep]
+    \item Work your \textbf{assigned leads} only
+    \item Update lead statuses and add notes
+    \item Manage pipeline: Call Data $\rightarrow$ Potential Clients $\rightarrow$ Follow-up $\rightarrow$ Clients $\rightarrow$ Active Projects
+    \item Add leads manually and detect returning clients by phone
+    \item Close clients (won deals) and manage active projects
+    \item Chat with team members (DMs, groups, files, voice)
+    \item View your personal activity report
+    \item Enable/disable Two-Factor Authentication (2FA)
+\end{itemize}
+
+\subsection{What You Cannot Do}
+\begin{itemize}[noitemsep]
+    \item Access Admin or Manager panels
+    \item View other CSRs' leads (except when reassigning at retry limits)
+    \item Manage users, bulk uploads, or system settings
+\end{itemize}
+
+\begin{warningbox}
+Login must use the \textbf{CSR portal} (\texttt{/login/csr}). Admin/Manager portals will not work for CSR accounts. Only \textbf{one active session} is allowed at a time.
+\end{warningbox}
+
+% ══════════════════════════════════════════════
+\section{Login}
+
+\begin{workflowbox}
+\begin{enumerate}[noitemsep]
+    \item Open the CRM home page
+    \item Click \textbf{CSR} portal $\rightarrow$ navigates to \texttt{/login/csr}
+    \item Enter \textbf{Email} and \textbf{Password}
+    \item Optionally tick \textbf{Remember me}
+    \item If prompted, complete \textbf{CAPTCHA} (after failed login attempts)
+    \item If 2FA is enabled, enter the \textbf{6-digit OTP} sent to your email
+    \item You are redirected to \textbf{Call Data} (\texttt{/csr})
+\end{enumerate}
+\end{workflowbox}
+
+% Optional: export diagram from mermaid/03-login-flow.mmd and uncomment:
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[width=0.85\textwidth]{images/03-login-flow.png}
+%     \caption{CSR Login Flow}
+% \end{figure}
+
+% ══════════════════════════════════════════════
+\section{Screen Layout}
+
+The CSR panel uses a \textbf{top horizontal navigation bar} (no sidebar).
+
+\subsection{Main Navigation}
+
+\begin{longtable}{@{}p{3.5cm}p{4.5cm}p{6.5cm}@{}}
+\toprule
+\textbf{Menu Item} & \textbf{URL} & \textbf{Purpose} \\
+\midrule
+\endhead
+Call Data           & \texttt{/csr}                    & Main calling dashboard \\
+Potential Clients   & \texttt{/csr/potential-clients}  & Important, Scheduled, Interested leads \\
+Not Interested      & \texttt{/csr/not-interested}     & Follow-up and retry tracking \\
+Clients             & \texttt{/csr/clients}             & Won / closed client directory \\
+Active Projects     & \texttt{/csr/active-projects}     & Ongoing project management \\
+Bin                 & \texttt{/csr/bin}                 & Deleted and limit-reached leads \\
+\bottomrule
+\end{longtable}
+
+\subsection{Header Utilities}
+
+\begin{longtable}{@{}p{3cm}p{11cm}@{}}
+\toprule
+\textbf{Button} & \textbf{Function} \\
+\midrule
+\endhead
+Theme Toggle    & Switch between light and dark mode \\
+Messages        & Open team chat overlay (also at \texttt{/csr/chat}) \\
+Notifications   & Scheduled calls + today's status change summary \\
+Profile Menu    & Name, CSR Code, CNIC, Security Settings, Logout \\
+\bottomrule
+\end{longtable}
+
+% Optional: export diagram from mermaid/02-navigation-structure.mmd and uncomment:
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[width=\textwidth]{images/02-navigation-structure.png}
+%     \caption{CSR Navigation Structure}
+% \end{figure}
+
+% ══════════════════════════════════════════════
+\section{Lead Status Reference}
+
+Every lead has a \textbf{status} that determines where it appears in the system.
+
+\begin{longtable}{@{}p{4cm}p{10cm}@{}}
+\toprule
+\textbf{Status} & \textbf{Meaning} \\
+\midrule
+\endhead
+Pending             & Not yet worked / in queue \\
+Not Picked          & Phone was not answered \\
+Not Interested      & Client declined interest \\
+No Owner Available  & Correct contact person not found \\
+Not In Service      & Our service is not relevant to client \\
+In House            & Internal / special case \\
+Important           & Requires follow-up (no schedule yet) \\
+Schedule Call       & Follow-up date and time are set \\
+Interested          & Client showed interest; service selected \\
+Close Client        & Deal won --- project starts \\
+\bottomrule
+\end{longtable}
+
+\begin{warningbox}
+\textbf{Retry Limits:}
+\begin{itemize}[noitemsep]
+    \item \textbf{Not Interested:} 3 tries $\rightarrow$ Bin or Reassign to another CSR
+    \item \textbf{Not Picked:} 7 tries $\rightarrow$ Bin or Reassign to another CSR
+\end{itemize}
+\end{warningbox}
+
+% Optional: export diagram from mermaid/01-lead-status-flow.mmd and uncomment:
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[width=\textwidth]{images/01-lead-status-flow.png}
+%     \caption{Lead Status Workflow}
+% \end{figure}
+
+% ══════════════════════════════════════════════
+\section{Page-by-Page Guide}
+
+\subsection{Call Data --- \texttt{/csr}}
+
+\textbf{Title:} Client Calls --- \textit{Manage assigned client calls.}
+
+This is your \textbf{daily calling dashboard}.
+
+\subsubsection{Top Section}
+\begin{itemize}[noitemsep]
+    \item USA Timezone Clocks
+    \item Lead Status Donut Chart
+    \item Month Range Filter
+    \item \textbf{Add Lead} button
+    \item Scheduled calls banner (if any exist)
+\end{itemize}
+
+\subsubsection{Filters}
+\begin{longtable}{@{}p{3cm}p{11cm}@{}}
+\toprule
+\textbf{Filter} & \textbf{Description} \\
+\midrule
+State       & Filter by US state / area code \\
+Timezone    & Filter by phone area-code timezone \\
+Source      & Filter by upload source label \\
+Phone Code  & Match leading digits after country code \\
+\bottomrule
+\end{longtable}
+
+\subsubsection{Tabs}
+
+\textbf{Today's Queue:}
+\begin{itemize}[noitemsep]
+    \item \textbf{Today Leads} --- today's assigned leads
+    \item \textbf{Pending} --- unworked leads
+    \item \textbf{Not Picked} --- unanswered calls
+    \item \textbf{Not Interested} --- declined leads
+\end{itemize}
+
+\textbf{Follow-up \& Pipeline:}
+\begin{itemize}[noitemsep]
+    \item No Owner \textbar{} Not In Svc \textbar{} In House \textbar{} Important \textbar{} Schedule \textbar{} Interested \textbar{} Close Client
+\end{itemize}
+
+\subsubsection{Row Actions}
+\begin{itemize}[noitemsep]
+    \item \textbf{Eye icon} on client name $\rightarrow$ Lead Detail modal
+    \item \textbf{Notes} $\rightarrow$ add/view note history
+    \item \textbf{Update Status} dropdown $\rightarrow$ change lead status
+\end{itemize}
+
+\subsection{Potential Clients --- \texttt{/csr/potential-clients}}
+
+High-intent leads that are close to closing.
+
+\subsubsection{Tabs}
+\begin{longtable}{@{}p{4cm}p{10cm}@{}}
+\toprule
+\textbf{Tab} & \textbf{Content} \\
+\midrule
+Important Calls     & Important leads without a schedule \\
+Schedule Call       & Leads with date, time, and timezone set \\
+Interested Clients  & Leads marked interested with service selected \\
+\bottomrule
+\end{longtable}
+
+\subsubsection{Edit Client Modal Actions}
+Move to Important \textbar{} Schedule Call \textbar{} Interested \textbar{} Pending \textbar{} Close Client \textbar{} Reschedule \textbar{} Delete Client (moves to Bin)
+
+\subsection{Leads Follow-up --- \texttt{/csr/not-interested}}
+
+Nav label: \textbf{Not Interested}. Handles retry tracking.
+
+\subsubsection{Tabs \& Retry Limits}
+\begin{longtable}{@{}p{4cm}p{3cm}p{7cm}@{}}
+\toprule
+\textbf{Tab} & \textbf{Limit} & \textbf{Action at Limit} \\
+\midrule
+Not Interested  & 3 tries & Bin or Reassign CSR \\
+Not Picked      & 7 tries & Bin or Reassign CSR \\
+No Owner        & ---     & From main dashboard \\
+Not In Service  & ---     & From main dashboard \\
+In House        & ---     & From main dashboard \\
+\bottomrule
+\end{longtable}
+
+\subsubsection{Actions}
+View (eye) \textbar{} Retry (increments try count) \textbar{} History expand \textbar{} Status dropdown (Pending, Important, Interested, Close Client, In House)
+
+% Optional: export diagram from mermaid/05-retry-bin-flow.mmd and uncomment:
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[width=0.9\textwidth]{images/05-retry-bin-flow.png}
+%     \caption{Retry and Bin Flow}
+% \end{figure}
+
+\subsection{My Clients --- \texttt{/csr/clients}}
+
+Directory of \textbf{won clients} (deals closed).
+
+\subsubsection{Tabs}
+\begin{itemize}[noitemsep]
+    \item \textbf{New Clients} --- first-time won deals
+    \item \textbf{Old Clients} --- repeat / returning clients
+\end{itemize}
+
+\subsubsection{Add Client Form Fields}
+\begin{longtable}{@{}p{4cm}p{2cm}p{8cm}@{}}
+\toprule
+\textbf{Field} & \textbf{Required} & \textbf{Notes} \\
+\midrule
+Phone           & Yes     & Returning client auto-detected \\
+Client Name     & \textbf{Yes} & --- \\
+Client Company  & No      & --- \\
+Email           & No      & --- \\
+State           & No      & --- \\
+Service         & No      & --- \\
+Comments        & No      & --- \\
+Quotation       & No      & --- \\
+Upfront         & No      & --- \\
+\bottomrule
+\end{longtable}
+
+\subsection{Projects Dashboard --- \texttt{/csr/active-projects}}
+
+\subsubsection{Add Project Form Fields}
+\begin{longtable}{@{}p{4cm}p{2cm}p{8cm}@{}}
+\toprule
+\textbf{Field} & \textbf{Required} & \textbf{Notes} \\
+\midrule
+Client Name     & \textbf{Yes} & --- \\
+Project Title   & \textbf{Yes} & --- \\
+Service         & \textbf{Yes} & --- \\
+Deadline        & \textbf{Yes} & --- \\
+Company         & No      & --- \\
+Phone           & No      & --- \\
+Project Code    & No      & --- \\
+Budget          & No      & --- \\
+Notes           & No      & --- \\
+\bottomrule
+\end{longtable}
+
+\subsubsection{Project Workbench}
+Full project editor: phases (not\_started, takeoff, pricing, QA), payments, scope, budget, deadlines, owner. \textbf{Mark Complete} when finished.
+
+\subsection{My Bin --- \texttt{/csr/bin}}
+
+Stores limit-reached and deleted leads.
+
+\textbf{Tabs:} All \textbar{} Not Picked \textbar{} Not Interested \textbar{} In House \textbar{} No Owner \textbar{} Not In Service \textbar{} Deleted
+
+\textbf{Action:} \textbf{Restore} --- returns lead to normal workflow.
+
+\subsection{Security Settings --- \texttt{/csr/settings}}
+
+Access via Profile Menu $\rightarrow$ Security Settings.
+
+Toggle \textbf{Two-Factor Authentication (2FA)}. OTP is sent to your account email.
+
+\subsection{Messages --- \texttt{/csr/chat}}
+
+\begin{longtable}{@{}p{4cm}p{10cm}@{}}
+\toprule
+\textbf{Feature} & \textbf{Detail} \\
+\midrule
+Direct Messages     & One-on-one chat \\
+Groups              & Team group conversations \\
+File Attachments    & Max 200 MB \\
+Voice Messages      & Record and send \\
+Reply / Copy / Delete & Right-click context menu \\
+Pin Conversations   & Pin important chats \\
+Search in Chat      & Search message history \\
+Read Receipts       & Delivery/read ticks \\
+Browser Notifications & Optional alerts \\
+\bottomrule
+\end{longtable}
+
+% ══════════════════════════════════════════════
+\section{Common Workflows}
+
+\subsection{Work a New Assigned Lead}
+
+\begin{workflowbox}
+\begin{enumerate}
+    \item Go to \textbf{Call Data} $\rightarrow$ \textbf{Today Leads} or \textbf{Pending} tab
+    \item Apply filters if needed (state, timezone, source)
+    \item Click \textbf{eye icon} on client name to review details
+    \item Add a \textbf{note} summarizing the call
+    \item Select \textbf{Update Status} based on call outcome:
+    \begin{itemize}
+        \item No answer $\rightarrow$ \textbf{Not Picked}
+        \item Declined $\rightarrow$ \textbf{Not Interested}
+        \item Follow-up needed $\rightarrow$ \textbf{Important}
+        \item Schedule call $\rightarrow$ \textbf{Schedule Call} (set date, time, timezone)
+        \item Shows interest $\rightarrow$ \textbf{Interested} (select service)
+        \item Deal won $\rightarrow$ \textbf{Close Client}
+    \end{itemize}
+\end{enumerate}
+\end{workflowbox}
+
+\subsection{Schedule a Call}
+
+\begin{workflowbox}
+\begin{enumerate}
+    \item From Call Data: select \textbf{Schedule Call} status\\
+          \textit{OR} from Potential Clients $\rightarrow$ Edit $\rightarrow$ Move to Schedule Call
+    \item Enter \textbf{Date}, \textbf{Time}, and \textbf{Timezone} (US timezones)
+    \item Optionally add a note
+    \item Save $\rightarrow$ lead appears under \textbf{Schedule Call} tab
+    \item Notification bell will also show the scheduled call
+\end{enumerate}
+\end{workflowbox}
+
+\subsection{Mark Client as Interested}
+
+\begin{workflowbox}
+\begin{enumerate}
+    \item Select status \textbf{Interested}
+    \item Choose one or more services: Estimating, Scheduling, Shop Drawing, Drafting, BIM, IT
+    \item Optionally select a subtype for each service
+    \item Save $\rightarrow$ lead moves to \textbf{Interested Clients} tab on Potential Clients
+\end{enumerate}
+\end{workflowbox}
+
+\subsection{Close a Client (Deal Won)}
+
+\begin{workflowbox}
+\begin{enumerate}
+    \item Select \textbf{Close Client} from any page
+    \item Fill required fields:
+    \begin{itemize}
+        \item \textbf{Project Title}
+        \item \textbf{Deadline}
+        \item \textbf{Service}
+        \item \textbf{Paid Amount}
+    \end{itemize}
+    \item Optional: Project Code, Budget, Notes, Email
+    \item Save $\rightarrow$ system auto-generates Client Code (e.g.\ \texttt{CSR001-01})
+    \item You are redirected to \textbf{Active Projects}
+\end{enumerate}
+\end{workflowbox}
+
+% Optional: export diagram from mermaid/04-close-client-workflow.mmd and uncomment:
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[width=0.85\textwidth]{images/04-close-client-workflow.png}
+%     \caption{Close Client Workflow}
+% \end{figure}
+
+\subsection{Retry Not Interested / Not Picked}
+
+\begin{workflowbox}
+\begin{enumerate}
+    \item Go to \textbf{Not Interested} nav $\rightarrow$ relevant tab
+    \item Click \textbf{Retry} button (increments try count)
+    \item At limit (NI = 3, NP = 7): \textbf{Assign to CSR} modal opens
+    \item Select a peer CSR to reassign, \textit{or} change status back to Pending / Important / Interested
+\end{enumerate}
+\end{workflowbox}
+
+\subsection{Restore from Bin}
+
+\begin{workflowbox}
+\begin{enumerate}
+    \item Go to \textbf{Bin} page
+    \item Find the lead (use search or tabs)
+    \item Click \textbf{Restore}
+    \item Lead returns to normal workflow
+\end{enumerate}
+\end{workflowbox}
+
+% ══════════════════════════════════════════════
+\section{Services List}
+
+\begin{longtable}{@{}p{4cm}p{10cm}@{}}
+\toprule
+\textbf{Service} & \textbf{Notes} \\
+\midrule
+Estimating      & Optional subtype available \\
+Scheduling      & Optional subtype available \\
+Shop Drawing    & Optional subtype available \\
+Drafting        & Optional subtype available \\
+BIM             & Optional subtype available \\
+IT              & Optional subtype available \\
+\bottomrule
+\end{longtable}
+
+% ══════════════════════════════════════════════
+\section{URL Quick Reference}
+
+\begin{lstlisting}
+/                          --> Portal picker
+/login/csr                 --> CSR Login
+/csr                       --> Call Data (Main Dashboard)
+/csr/potential-clients     --> Potential Clients
+/csr/not-interested        --> Leads Follow-up
+/csr/clients               --> My Clients
+/csr/active-projects       --> Projects Dashboard
+/csr/bin                   --> My Bin
+/csr/settings              --> Security Settings (2FA)
+/csr/chat                  --> Full-page Messages
+\end{lstlisting}
+
+% ══════════════════════════════════════════════
+\section{Daily Routine Checklist}
+
+\begin{longtable}{@{}p{3cm}p{11cm}@{}}
+\toprule
+\textbf{Time} & \textbf{Task} \\
+\midrule
+Login       & Call Data $\rightarrow$ check Today Leads \\
+Morning     & Review Scheduled Calls (Potential Clients $\rightarrow$ Schedule tab) \\
+During Day  & Make calls, update status, add notes after each call \\
+Follow-up   & Review Important and Interested tabs \\
+End of Day  & Check pending leads, view Activity Report \\
+Logout      & Profile Menu $\rightarrow$ Logout \\
+\bottomrule
+\end{longtable}
+
+% Optional: export diagram from mermaid/06-daily-csr-routine.mmd and uncomment:
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[width=0.85\textwidth]{images/06-daily-csr-routine.png}
+%     \caption{Daily CSR Routine}
+% \end{figure}
+
+% ══════════════════════════════════════════════
+\section{Tips \& Rules}
+
+\begin{tipbox}
+\begin{itemize}
+    \item You can only see \textbf{your assigned leads}
+    \item Always \textbf{add notes} after each call --- history is valuable
+    \item Watch \textbf{retry limits}: Not Interested = 3, Not Picked = 7
+    \item Check the \textbf{notification bell} for scheduled calls
+    \item Entering a phone number may \textbf{auto-detect returning clients}
+    \item Client codes are auto-generated on Close Client (\texttt{CSR001-01} format)
+    \item Always \textbf{logout} at end of shift via Profile Menu
+    \item Use \textbf{Messages} to coordinate with your team
+\end{itemize}
+\end{tipbox}
+
+% ══════════════════════════════════════════════
+\vfill
+\begin{center}
+    \small
+    \textcolor{gray}{BEM Solutions --- CSR Panel User Manual --- \today}
+\end{center}
+
+\end{document}

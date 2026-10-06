@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const reportUpload_controller_1 = require("../controllers/reportUpload.controller");
+const upload_middleware_1 = require("../middleware/upload.middleware");
+const auth_middleware_1 = require("../middleware/auth.middleware");
+const role_middleware_1 = require("../middleware/role.middleware");
+const router = (0, express_1.Router)();
+router.post("/", auth_middleware_1.verifyToken, (0, role_middleware_1.allowRoles)("admin"), upload_middleware_1.uploadReportFile.single("file"), reportUpload_controller_1.uploadReport);
+router.delete("/:id", auth_middleware_1.verifyToken, (0, role_middleware_1.allowRoles)("admin"), reportUpload_controller_1.deleteReport);
+exports.default = router;

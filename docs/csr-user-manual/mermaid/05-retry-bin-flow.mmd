@@ -1,0 +1,22 @@
+flowchart TD
+    NI["Not Interested Tab"] --> R1["Click Retry"]
+    NP["Not Picked Tab"] --> R2["Click Retry"]
+
+    R1 --> C1{"Try count >= 3?"}
+    R2 --> C2{"Try count >= 7?"}
+
+    C1 -->|"No"| BACK1["Lead stays in Follow-up"]
+    C2 -->|"No"| BACK2["Lead stays in Follow-up"]
+
+    C1 -->|"Yes"| LIMIT["Limit Reached"]
+    C2 -->|"Yes"| LIMIT
+
+    LIMIT --> CHOICE{"Action?"}
+    CHOICE -->|"Reassign"| ASSIGN["Assign to another CSR"]
+    CHOICE -->|"Auto"| BIN["Moved to Bin"]
+
+    BIN --> RESTORE["Restore from Bin"]
+    RESTORE --> PENDING["Back to normal workflow"]
+
+    style LIMIT fill:#FFF1F3,stroke:#B42318
+    style RESTORE fill:#ECFDF5,stroke:#065F46

@@ -1,0 +1,15 @@
+flowchart TD
+    A["Any Page: Select Close Client"] --> B["Open Project Won Modal"]
+    B --> C["Fill Required Fields"]
+    C --> D["Project Title"]
+    C --> E["Deadline"]
+    C --> F["Service"]
+    C --> G["Paid Amount"]
+    B --> H["Optional: Code, Budget, Notes, Email"]
+    D & E & F & G --> SAVE["Save"]
+    H --> SAVE
+    SAVE --> CODE["Auto Client Code<br/>e.g. CSR001-01"]
+    CODE --> REDIRECT["Redirect to Active Projects"]
+
+    style SAVE fill:#ECFDF5,stroke:#065F46
+    style REDIRECT fill:#EAF5FF,stroke:#0B84F3

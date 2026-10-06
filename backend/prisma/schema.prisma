@@ -1,0 +1,762 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  admin
+  csr
+  manager
+  technical_manager
+  accounts
+  estimator
+  bim_manager
+  bim
+}
+
+model User {
+  id           String    @id @default(cuid()) @map("_id")
+  name         String
+  email        String    @unique
+  password     String
+  role         Role
+  csrCode      String?
+  /** HR employee ID — separate from CSR/Estimator client coding code */
+  employeeCode String?
+  fatherName   String?
+  currentAddress String?
+  contactNo    String?
+  cnic         String?
+  cnicPdfUrl   String?
+  profilePic   String?
+  isActive     Boolean   @default(true)
+  isOnline     Boolean   @default(false)
+  lastActive   DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  twoFAEnabled Boolean   @default(false)
+  tokenVersion Int       @default(0)
+  activeSessionId String?
+  lastLoginAt  DateTime?
+  allowedIps   String[]  @default([])
+  allowedMacAddress String?
+  temporaryAccessIp  String?
+  temporaryAccessMac String?
+  temporaryAccessUntil DateTime?
+  /** When false, user cannot open chat / send messages. */
+  chatEnabled        Boolean  @default(true)
+  /** Empty = can message any active user. Non-empty = only these user IDs. */
+  chatAllowedUserIds String[] @default([])
+  /** Empty = visible to every chat-enabled user. Non-empty = visible only to these user IDs. */
+  chatVisibleToUserIds String[] @default([])
+
+  auditLogs      SecurityAuditLog[]
+  accessHistory  AccessHistory[]
+  workSessions   CsrWorkSession[]
+
+  leads        Lead[]               @relation("AssignedLeads")
+  callLogs     CallLog[]            @relation("CSRCallLogs")
+  reports      Report[]
+  memberships  ConversationMember[]
+  sentMessages Message[]            @relation("SentMessages")
+
+  @@index([role])
+  @@index([isActive])
+  @@index([lastActive])
+  @@index([role, isActive])
+  @@index([temporaryAccessUntil])
+}
+
+model Lead {
+  id                 String    @id @default(cuid()) @map("_id")
+  name               String?
+  company            String?
+  phone              String?
+  email              String?
+  website            String?
+  status             String    @default("pending")
+  comments           String?
+  important          Boolean   @default(false)
+  interested         Boolean   @default(false)
+  nextSchedule       String?
+  nextTime           String?
+  timezone           String?
+  followUpNotes      String?
+  followUpExpiry     DateTime?
+  interestedService  String?
+  projectTitle       String?
+  projectCode        String?
+  projectDeadline    String?
+  /** Emergency submit window: morning | cob (close of business). */
+  deadlineTiming     String?
+  projectBudget      String?
+  projectNotes       String?
+  paidAmount         String?
+  ownerName          String?
+  projectScope       String?
+  projectPhase       String?   @default("not_started")
+  takeoffDeadline    String?
+  pricingDeadline    String?
+  qaDeadline         String?
+  projectPayments    String?
+  /** When admin/CSR handed the project to technical (Close Client / Project DB). */
+  technicalReceivedAt  DateTime?
+  /** When Technical sent the project into Pricing. */
+  pricingReceivedAt    DateTime?
+  /** JSON: [{ estimatorId, estimatorName, manHours, deadline, takeoffDone }] */
+  technicalAssignments String?
+  /** JSON: { sir: [], estimator: [] } — Admin↔TM and TM↔Estimator note threads (legacy array = sir). */
+  technicalNotes       String?
+  /** Manual work status: completed | in_progress | not_completed (overrides derived badge). */
+  projectWorkStatus    String?
+  /** Soft-removed from Technical portal only — still visible in Admin Project DB. */
+  hiddenOnTechnical    Boolean   @default(false)
+  /** estimation (admin + chief estimator) or bim (BIM manager + BIM only). */
+  projectDesk          String?   @default("estimation")
+  /** Admin sent project back for revision — shows in TM Revisions section. */
+  needsRevision          Boolean   @default(false)
+  revisionRequestedAt    DateTime?
+  revisionNotes            String?
+  clientCode         String?
+  state              String?
+  isOldClient        Boolean   @default(false)
+  projectSource      String?
+  trade              String?
+  /** Comma-separated subtrades from Excel / CSR +N editor */
+  subTrades          String?
+  /** JSON string array of CSR trade-work explanations */
+  tradeNotes         String?
+  /** Admin: no further payment expected on this quoted project (Payments dashboard). */
+  paymentDiscarded   Boolean   @default(false)
+  assignedTo         String
+  uploadedFileId     String?
+  shuffleAttempts    Int       @default(0)
+  notInterestedCount Int       @default(0)
+  notPickedCount     Int       @default(0)
+  hiddenOnMain       Boolean   @default(false)
+  inBin              Boolean   @default(false)
+  binReason          String?
+  binPreviousStatus  String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  csr         User        @relation("AssignedLeads", fields: [assignedTo], references: [id])
+  uploadFile  UploadFile? @relation(fields: [uploadedFileId], references: [id])
+  callLogs    CallLog[]
+  notes       LeadNote[]
+  subContacts SubContact[]
+
+  @@index([assignedTo])
+  @@index([status])
+  @@index([phone])
+  @@index([email])
+  @@index([company])
+  @@index([createdAt])
+  @@index([updatedAt])
+  @@index([assignedTo, status])
+  @@index([company, status])
+  @@index([status, assignedTo])
+  @@index([inBin])
+  @@index([important])
+  @@index([interested])
+  @@index([inBin, assignedTo])
+  @@index([inBin, status])
+  @@index([inBin, assignedTo, status])
+  @@index([nextSchedule])
+  @@index([hiddenOnMain])
+  @@index([uploadedFileId])
+}
+
+model LeadNote {
+  id        String   @id @default(cuid()) @map("_id")
+  text      String
+  createdAt DateTime @default(now())
+  leadId    String
+  /** Parent LeadNote id — threaded reply under that sticky. */
+  parentId  String?
+
+  lead Lead @relation(fields: [leadId], references: [id])
+
+  @@index([leadId])
+  @@index([leadId, createdAt])
+  @@index([parentId])
+}
+
+model SubContact {
+  id          String   @id @default(cuid()) @map("_id")
+  leadId      String
+  name        String
+  designation String?
+  phone       String?
+  email       String?
+  createdAt   DateTime @default(now())
+
+  lead Lead @relation(fields: [leadId], references: [id])
+
+  @@index([leadId])
+}
+
+model CallLog {
+  id        String   @id @default(cuid()) @map("_id")
+  leadId    String
+  csrId     String
+  status    String
+  notes     String?
+  duration  Int?
+  createdAt DateTime @default(now())
+
+  lead Lead @relation(fields: [leadId], references: [id])
+  csr  User @relation("CSRCallLogs", fields: [csrId], references: [id])
+
+  @@index([csrId, createdAt])
+  @@index([leadId])
+  @@index([createdAt])
+}
+
+model UploadSource {
+  id        String   @id @default(cuid()) @map("_id")
+  name      String   @unique
+  sudoName  String?
+  createdAt DateTime @default(now())
+
+  uploads UploadFile[]
+}
+
+model Trade {
+  id        String   @id @default(cuid()) @map("_id")
+  name      String   @unique
+  createdAt DateTime @default(now())
+}
+
+model UploadFile {
+  id             String   @id @default(cuid()) @map("_id")
+  fileName       String
+  cloudinaryUrl  String
+  totalLeads     Int
+  uploadedBy     String
+  companyName    String?
+  sourceId       String?
+  uploadCategory String?  /* call-data | new-client | old-client | interested | important | active-projects */
+  createdAt      DateTime @default(now())
+
+  source UploadSource? @relation(fields: [sourceId], references: [id])
+  leads  Lead[]
+
+  @@index([sourceId])
+  @@index([uploadCategory])
+  @@index([createdAt])
+}
+
+model Conversation {
+  id              String   @id @default(cuid()) @map("_id")
+  type            String
+  name            String?
+  pinnedMessageId String?
+  /** everyone | admins — who may send messages in a group */
+  whoCanSend      String   @default("everyone")
+  createdById     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  members  ConversationMember[]
+  messages Message[]
+
+  @@index([type])
+  @@index([updatedAt])
+}
+
+model ConversationMember {
+  id             String    @id @default(cuid()) @map("_id")
+  conversationId String
+  userId         String
+  joinedAt       DateTime  @default(now())
+  lastReadAt     DateTime?
+  archivedAt     DateTime?
+  /** Soft-hide from user's recent chats; admin peek still sees the thread */
+  clearedAt      DateTime?
+  /** admin | member */
+  memberRole     String    @default("member")
+
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+  user         User         @relation(fields: [userId], references: [id])
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+}
+
+model Message {
+  id             String   @id @default(cuid()) @map("_id")
+  conversationId String
+  senderId       String
+  text           String   @default("")
+  type           String   @default("text")
+  fileUrl        String?
+  fileName       String?
+  fileSize       Int?
+  fileMimeType   String?
+  replyToId      String?
+  mentions       String[] @default([])
+  reactions      Json?
+  editedAt       DateTime?
+  deletedAt      DateTime?
+  deletedById    String?
+  deletedReason  String?
+  hiddenForUserIds String[] @default([])
+  createdAt      DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+  sender       User         @relation("SentMessages", fields: [senderId], references: [id])
+  replyTo      Message?     @relation("MessageReply", fields: [replyToId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replies      Message[]    @relation("MessageReply")
+
+  @@index([conversationId])
+  @@index([conversationId, createdAt])
+}
+
+model Report {
+  id          String   @id @default(cuid()) @map("_id")
+  reportName  String
+  reportUrl   String
+  reportType  String
+  generatedBy String?
+  createdAt   DateTime @default(now())
+
+  user User? @relation(fields: [generatedBy], references: [id])
+}
+
+model SecurityAuditLog {
+  id        String   @id @default(cuid()) @map("_id")
+  userId    String?
+  email     String?
+  action    String
+  ip        String?
+  userAgent String?
+  meta      String?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+model LoginLockout {
+  id           String    @id @default(cuid()) @map("_id")
+  key          String    @unique
+  failCount    Int       @default(0)
+  blockedUntil DateTime?
+  updatedAt    DateTime  @updatedAt
+}
+
+model LoginAttemptAlert {
+  id        String   @id @default(cuid()) @map("_id")
+  userId    String   @unique
+  attemptId Int
+  createdAt DateTime @default(now())
+}
+
+model RateLimitEntry {
+  id        String   @id @default(cuid()) @map("_id")
+  key       String   @unique
+  hits      Int      @default(0)
+  resetAt   DateTime
+  updatedAt DateTime @updatedAt
+}
+
+model AccessHistory {
+  id        String   @id @default(cuid()) @map("_id")
+  userId    String
+  email     String?
+  ip        String?
+  userAgent String?
+  deviceId  String?
+  browser   String?
+  event     String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([userId, createdAt])
+}
+
+model CsrWorkSession {
+  id              String    @id @default(cuid()) @map("_id")
+  userId          String
+  loginAt         DateTime
+  logoutAt        DateTime?
+  dashboardMs     Int       @default(0)
+  awayMs          Int       @default(0)
+  /** Accumulated ms while CSR explicitly paused (left for WhatsApp etc.). */
+  pausedMs        Int       @default(0)
+  /** Set while paused — null when working / checked out. */
+  pausedAt        DateTime?
+  lastHeartbeatAt DateTime?
+  /** Last click, keypress, or scroll. Mouse movement does not update this. */
+  lastActionAt    DateTime?
+  lastVisible     Boolean   @default(true)
+  deviceId        String?
+  browser         String?
+  ip              String?
+  closedReason    String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([loginAt])
+  @@index([userId, loginAt])
+  @@index([logoutAt])
+}
+
+enum AccountsPage {
+  dashboard
+  balance_sheet
+  income_statement
+  cash_flow
+  total_assets
+  sales_payroll
+  technical_payroll
+  income_budget
+}
+
+model PayrollLoan {
+  id           String   @id @default(cuid()) @map("_id")
+  employeeName String
+  department   String
+  totalAmount  Float    @default(0)
+  paidAmount   Float    @default(0)
+  updatedBy    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([employeeName])
+  @@index([department])
+}
+
+model AccountsRecord {
+  id         String       @id @default(cuid()) @map("_id")
+  page       AccountsPage
+  recordDate String
+  data       Json
+  updatedBy  String?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  @@unique([page, recordDate])
+  @@index([recordDate])
+  @@map("accounts_dashboard_records")
+}
+
+model AccountsFileUpload {
+  id         String       @id @default(cuid()) @map("_id")
+  page       AccountsPage
+  recordDate String
+  fileName   String
+  fileUrl    String
+  mimeType   String?
+  uploadedBy String
+  createdAt  DateTime     @default(now())
+
+  @@index([page, recordDate])
+  @@map("accounts_dashboard_uploads")
+}
+
+/** Archived Word executive summaries (one or more versions per month). */
+model AccountsMonthlyReport {
+  id                 String   @id @default(cuid()) @map("_id")
+  month              String
+  fileName           String
+  fileUrl            String
+  mimeType           String?
+  sourceDate         String?
+  cloudinaryPublicId String?
+  totals             Json?
+  uploadedBy         String
+  createdAt          DateTime @default(now())
+
+  @@index([month])
+  @@index([createdAt])
+  @@map("accounts_dashboard_monthly_reports")
+}
+
+/**
+ * Technical Manager KPI ledger — one row per field entry per estimator.
+ * Multiple rows per fieldKey allow monthly history (+ add / edit / delete).
+ */
+model EstimatorKpiRecord {
+  id            String   @id @default(cuid()) @map("_id")
+  estimatorId   String
+  estimatorName String
+  /** See ESTIMATOR_KPI_FIELD_KEYS in technicalKpiRecords.ts */
+  fieldKey      String
+  value         String
+  note          String?
+  /** When this value was recorded — used for monthly reports */
+  recordedAt    DateTime
+  createdById   String?
+  createdByName String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([estimatorId])
+  @@index([fieldKey])
+  @@index([recordedAt])
+  @@index([estimatorId, fieldKey])
+  @@index([estimatorId, recordedAt])
+  @@map("estimator_kpi_records")
+}
+
+/**
+ * Inbox for Technical Manager — Admin / Estimator project activity alerts.
+ * Click opens Active Projects focused on leadId.
+ */
+model TechnicalNotification {
+  id            String    @id @default(cuid()) @map("_id")
+  leadId        String
+  projectTitle  String?
+  projectCode   String?
+  /** admin | estimator | system */
+  source        String
+  actorId       String?
+  actorName     String?
+  actorRole     String?
+  title         String
+  message       String
+  /** JSON string[] of human-readable changed fields */
+  changeSummary String?
+  /** Estimator user id. Empty = every estimator on the project (notes). Set = only that person (assignment). */
+  recipientId   String?
+  /** estimation | bim. BIM alerts stay with the BIM manager. */
+  desk          String?
+  readAt        DateTime?
+  createdAt     DateTime  @default(now())
+
+  @@index([createdAt])
+  @@index([readAt])
+  @@index([leadId])
+  @@index([source, createdAt])
+  @@index([recipientId, createdAt])
+  @@map("technical_notifications")
+}
+
+/**
+ * Admin → Users → All Employees roster.
+ * Linked rows (userId) pull live details from User; manual rows use free-text role.
+ */
+model StaffEmployee {
+  id             String   @id @default(cuid()) @map("_id")
+  /** Dashboard user — when set, profile fields are resolved from User */
+  userId         String?
+  /** BEM | GPS */
+  company        String   @default("BEM")
+  /** Job title / role when no dashboard account */
+  manualRole     String?
+  name           String?
+  email          String?
+  employeeCode   String?
+  fatherName     String?
+  currentAddress String?
+  contactNo      String?
+  cnic           String?
+  cnicPdfUrl     String?
+  profilePic     String?
+  notes          String?
+  /** Optional in-house IPs. Empty means no extra addresses. */
+  allowedIps     String[] @default([])
+  /**
+   * Accounts Income Statement team head
+   * e.g. "Technical Team Salaries", "Administration Salaries"
+   */
+  payrollHead    String?
+  /** YYYY-MM — appear on Income Statement from this month until unassigned / removed */
+  payrollStartMonth String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([userId])
+  @@index([company])
+  @@index([payrollHead])
+  @@map("staff_employees")
+}
+
+/**
+ * Admin → Users → Previous & merged employees.
+ * Names that appeared on Accounts (Mar–Jul, before August HR full names)
+ * can be merged into a current employee so PF All time follows the new name.
+ */
+model EmployeeNameMerge {
+  id              String    @id @default(cuid()) @map("_id")
+  previousName    String
+  previousNameKey String    @unique
+  currentName     String?
+  currentNameKey  String?
+  currentStaffId  String?
+  currentUserId   String?
+  payrollHead     String?
+  firstSeen       String?
+  lastSeen        String?
+  status          String    @default("previous")
+  mergedAt        DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([status])
+  @@index([currentNameKey])
+  @@map("employee_name_merges")
+}
+
+/** Shared company-gate login (landing → BEM / GPS portals). Managed from Admin → Users. */
+model CompanyCredential {
+  id        String   @id @default(cuid()) @map("_id")
+  /** BEM | GPS */
+  company   String   @unique
+  username  String
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("company_credentials")
+}
+
+/**
+ * Shift window for one month. personKey empty = the whole department.
+ * A later month with no row keeps the previous month's times until the CEO sets it.
+ */
+model ShiftSchedule {
+  id         String   @id @default(cuid()) @map("_id")
+  month      String
+  department String
+  personKey  String   @default("")
+  personName String   @default("")
+  checkIn    String
+  checkOut   String
+  updatedBy  String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([month, department, personKey])
+  @@index([department, month])
+  @@map("shift_schedules")
+}
+
+/**
+ * Late cut for one month and department. A later month with no row keeps the previous month.
+ * Per day = selected pay parts ÷ 30. Each range cuts its own percent of that day.
+ */
+model LateDeductionPolicy {
+  id         String   @id @default(cuid()) @map("_id")
+  month      String
+  department String
+  /** Empty string is the whole department. A person key overrides that department. */
+  personKey  String   @default("")
+  personName String   @default("")
+  components Json
+  ranges     Json
+  updatedBy  String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([month, department, personKey])
+  @@index([department, month])
+  @@map("late_deduction_policies")
+}
+
+/** Daily check-in / check-out. Stored times are what reports show. */
+model StaffDayAttendance {
+  id         String   @id @default(cuid()) @map("_id")
+  personKey  String
+  personName String
+  department String
+  day        String
+  checkIn    String?
+  checkOut   String?
+  /** Optional note from the attendance page. Shown on the CEO report. */
+  comment    String?
+  userId     String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([personKey, day])
+  @@index([department, day])
+  @@index([day])
+  @@map("staff_day_attendance")
+}
+
+/** Overtime note left at checkout. CEO or Chief Estimator can edit, approve, or decline. */
+model OvertimeRequest {
+  id         String   @id @default(cuid()) @map("_id")
+  personKey  String
+  personName String
+  department String
+  day        String
+  comment    String
+  status     String   @default("pending")
+  editedBy   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([personKey, day, department])
+  @@index([department, day])
+  @@map("overtime_requests")
+}
+
+/** Leave, attendance correction, and other staff requests. CEO approval can update the day. */
+model StaffRequest {
+  id         String   @id @default(cuid()) @map("_id")
+  personKey  String
+  personName String
+  department String
+  userId     String?
+  kind       String
+  day        String
+  summary    String
+  detail     String   @default("")
+  checkIn    String?
+  checkOut   String?
+  status     String   @default("pending")
+  reviewedBy String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([personKey, day])
+  @@index([department, day])
+  @@map("staff_requests")
+}
+
+/** Zoom Phone account a CSR can dial from. */
+model ZoomDialerAccount {
+  id        String   @id @default(cuid()) @map("_id")
+  label     String
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  /** Zoom sign-in. Admin only — never sent to CSR dialer responses. */
+  email     String   @default("")
+  password  String   @default("")
+  /** Caller IDs on this Zoom account, as entered by admin. */
+  numbers   String[] @default([])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive, sortOrder])
+  @@map("zoom_dialer_accounts")
+}
+
+/** Per-CSR default Zoom account + caller ID. Stays until they change it. */
+model CsrDialerPreference {
+  id           String   @id @default(cuid()) @map("_id")
+  userId       String   @unique
+  accountId    String
+  callerNumber String
+  updatedAt    DateTime @updatedAt
+
+  @@index([accountId])
+  @@map("csr_dialer_preferences")
+}

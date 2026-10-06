@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -Command \"\\(Get-Content users/page.tsx | Measure-Object -Line\\).Lines\")",
+      "PowerShell(Get-ChildItem \"c:\\\\Programming\\\\Crm-dashboard\\\\CRM\\\\backend\\\\src\" -Recurse | Select-Object FullName | Where-Object { $_.FullName -match \"route|csr\" })",
+      "PowerShell(Get-ChildItem \"c:\\\\Programming\\\\Crm-dashboard\\\\CRM\\\\frontend\\\\app\\\\csr\" -Recurse | Select-Object Name, FullName | Where-Object { !$_.PSIsContainer })",
+      "Bash(git pull *)",
+      "Bash(git stash *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git merge *)"
+    ]
+  }
+}

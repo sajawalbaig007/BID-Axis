@@ -1,0 +1,34 @@
+flowchart TD
+    A["New Assigned Lead"] --> B["Pending / Today Leads"]
+    B --> C{"Call Result?"}
+
+    C -->|"No answer"| D["Not Picked"]
+    C -->|"Declined"| E["Not Interested"]
+    C -->|"Wrong person"| F["No Owner Available"]
+    C -->|"Service not needed"| G["Not In Service"]
+    C -->|"Internal case"| H["In House"]
+    C -->|"Follow-up needed"| I["Important"]
+    C -->|"Schedule call"| J["Schedule Call"]
+    C -->|"Shows interest"| K["Interested"]
+    C -->|"Deal won"| L["Close Client"]
+
+    L --> M["Active Projects"]
+
+    D --> N{"7 retries?"}
+    E --> O{"3 retries?"}
+
+    N -->|"Yes"| P["Bin / Reassign CSR"]
+    O -->|"Yes"| P
+
+    I --> J
+    I --> K
+    J --> K
+    K --> L
+
+    P --> Q["Restore from Bin"]
+    Q --> B
+
+    style A fill:#EAF5FF,stroke:#0B84F3
+    style L fill:#ECFDF5,stroke:#065F46
+    style M fill:#ECFDF5,stroke:#065F46
+    style P fill:#FFF1F3,stroke:#B42318

@@ -1,0 +1,37 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const auth_middleware_1 = require("../middleware/auth.middleware");
+const role_middleware_1 = require("../middleware/role.middleware");
+const upload_middleware_1 = require("../middleware/upload.middleware");
+const accounts_controller_1 = require("../controllers/accounts.controller");
+const payrollLoan_controller_1 = require("../controllers/payrollLoan.controller");
+const accountsReport_controller_1 = require("../controllers/accountsReport.controller");
+const accountsFx_controller_1 = require("../controllers/accountsFx.controller");
+const router = express_1.default.Router();
+router.use(auth_middleware_1.verifyToken, (0, role_middleware_1.allowRoles)("accounts", "admin"));
+router.use((_req, res, next) => {
+    res.set("Cache-Control", "no-store");
+    next();
+});
+router.get("/dashboard/summary", accounts_controller_1.getAccountsDashboardSummary);
+router.get("/fx-rates", accountsFx_controller_1.getLiveFxRates);
+router.get("/income-budget/actuals", accounts_controller_1.getIncomeBudgetActuals);
+router.get("/income-statement/pf-breakdown", accounts_controller_1.getProvidentFundBreakdown);
+router.get("/employee-name-merges", accounts_controller_1.listEmployeeNameMerges);
+router.get("/reports/monthly/saved", accountsReport_controller_1.listMonthlyAccountsReports);
+router.post("/reports/monthly/save", upload_middleware_1.uploadReportFile.single("file"), accountsReport_controller_1.saveMonthlyAccountsReport);
+router.get("/reports/monthly", accountsReport_controller_1.getMonthlyAccountsReport);
+router.get("/payroll-loans/lookup", payrollLoan_controller_1.lookupPayrollLoan);
+router.get("/payroll-loans", payrollLoan_controller_1.listPayrollLoans);
+router.post("/payroll-loans", payrollLoan_controller_1.upsertPayrollLoan);
+router.put("/payroll-loans", payrollLoan_controller_1.upsertPayrollLoan);
+router.delete("/payroll-loans/:id", payrollLoan_controller_1.deletePayrollLoan);
+router.get("/:page", accounts_controller_1.listAccountsDates);
+router.get("/:page/:date", accounts_controller_1.getAccountsRecord);
+router.put("/:page/:date", accounts_controller_1.saveAccountsRecord);
+router.post("/:page/:date/upload", upload_middleware_1.uploadReportFile.single("file"), accounts_controller_1.uploadAccountsFile);
+exports.default = router;

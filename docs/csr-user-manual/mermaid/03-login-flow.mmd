@@ -1,0 +1,14 @@
+flowchart TD
+    START(["Open CRM"]) --> PORTAL["Select CSR Portal"]
+    PORTAL --> LOGIN["/login/csr"]
+    LOGIN --> CREDS["Enter Email + Password"]
+    CREDS --> CAPTCHA{"CAPTCHA<br/>required?"}
+    CAPTCHA -->|"Yes"| CAPTCHA_SOLVE["Complete CAPTCHA"]
+    CAPTCHA -->|"No"| TWOFA
+    CAPTCHA_SOLVE --> TWOFA{"2FA enabled?"}
+    TWOFA -->|"Yes"| OTP["Enter 6-digit OTP from Email"]
+    TWOFA -->|"No"| SUCCESS
+    OTP --> SUCCESS["Redirect to /csr<br/>Call Data Dashboard"]
+    SUCCESS --> HEARTBEAT["Session + Presence Heartbeat Active"]
+
+    style SUCCESS fill:#ECFDF5,stroke:#065F46
