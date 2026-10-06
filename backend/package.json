@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "prisma:generate": "prisma generate",
-    "build": "prisma generate && prisma db push && tsc && ts-node prisma/seed.ts",
+    "build": "node node_modules/prisma/build/index.js generate && node node_modules/prisma/build/index.js db push && node node_modules/typescript/bin/tsc && node node_modules/ts-node/dist/bin.js prisma/seed.ts",
     "start": "node dist/server.js"
   },
   "dependencies": {
