@@ -5,11 +5,11 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "prisma:generate": "prisma generate",
-    "build": "npx prisma generate && npx prisma db push && npx tsc && npx ts-node prisma/seed.ts",
+    "build": "prisma generate && prisma db push && tsc && ts-node prisma/seed.ts",
     "start": "node dist/server.js"
   },
   "dependencies": {
-    "@prisma/client": "^6.19.3",
+    "@prisma/client": "6.19.3",
     "@types/multer": "^2.1.0",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^1.41.3",
@@ -27,7 +27,7 @@
     "ws": "^8.21.0",
     "xlsx": "^0.18.5",
     "@types/node": "^22.19.19",
-    "prisma": "^6.19.3",
+    "prisma": "6.19.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   },
