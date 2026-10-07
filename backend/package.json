@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "prisma:generate": "prisma generate",
-    "build": "node node_modules/prisma/build/index.js generate && node node_modules/prisma/build/index.js db push && node node_modules/typescript/bin/tsc && node node_modules/ts-node/dist/bin.js prisma/seed.ts",
+    "build": "node -e \"if(!process.env.DATABASE_URL||String(process.env.DATABASE_URL).includes('<db_password>')){console.error('DATABASE_URL is missing or still has <db_password>. Put the real Atlas connection string in Render Environment, then redeploy.');process.exit(1)}\" && npm install --include=dev --no-audit --no-fund && node node_modules/prisma/build/index.js generate && node node_modules/prisma/build/index.js db push --skip-generate && node node_modules/typescript/bin/tsc && node node_modules/ts-node/dist/bin.js prisma/seed.ts",
     "start": "node dist/server.js"
   },
   "dependencies": {
